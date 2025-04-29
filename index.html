@@ -3,15 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lift Challenge Game</title>
+    <title>Office Lift Challenge</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Lift Challenge Game</h1>
-    <canvas id="gameCanvas" width="400" height="600"></canvas>
-    <div id="status">Choose a lift and press Up or Down to move it!</div>
-    <div id="timer" style="font-size: 20px; margin-top: 10px;">Time: 0s</div>
-    <div id="score" style="font-size: 20px; margin-top: 10px;">Score: 0</div>
+    <div class="game-container">
+        <h1>Office Lift Challenge</h1>
+        
+        <div class="scenario-select">
+            <select id="scenario-selector" onchange="initGame(this.value)">
+                <option value="morningRush">Morning Rush</option>
+                <option value="lunchHour">Lunch Hour</option>
+                <option value="emergencyDrill">Emergency Drill</option>
+                <option value="lateNight">Late Night Escape</option>
+            </select>
+        </div>
+
+        <canvas id="gameCanvas" width="600" height="1000"></canvas>
+        
+        <div class="game-ui">
+            <div class="status-panel">
+                <div id="status">Choose a lift to begin!</div>
+            </div>
+            <div class="metrics">
+                <div id="timer">Time: 0s</div>
+                <div id="score">Score: 0</div>
+            </div>
+        </div>
+
+        <div class="power-ups">
+            <div class="power-up" id="priorityPass" onclick="usePowerUp('priorityPass')">
+                Priority Pass (P)
+            </div>
+            <div class="power-up" id="maintenanceOverride" onclick="usePowerUp('maintenanceOverride')">
+                Maintenance Override (M)
+            </div>
+            <div class="power-up" id="speedBoost" onclick="usePowerUp('speedBoost')">
+                Speed Boost (S)
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #4CAF50;"></div>
+                <span>Express Lift</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #2196F3;"></div>
+                <span>Normal Lift</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #9C27B0;"></div>
+                <span>Smart Lift</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #795548;"></div>
+                <span>Old Lift</span>
+            </div>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
