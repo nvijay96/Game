@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lift Challenge Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        #game-container {
+            width: 300px;
+            height: 500px;
+            margin: 50px auto;
+            border: 2px solid #333;
+            position: relative;
+            background-color: #fff;
+        }
+        .floor {
+            width: 100%;
+            height: 100px;
+            border-bottom: 1px solid #ccc;
+            position: relative;
+        }
+        .lift {
+            width: 50px;
+            height: 50px;
+            background-color: #333;
+            position: absolute;
+            bottom: 0;
+            left: 125px;
+            transition: bottom 0.5s;
+        }
+        .obstacle {
+            width: 30px;
+            height: 30px;
+            background-color: red;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: moveObstacle 3s infinite;
+        }
+        @keyframes moveObstacle {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+        #status {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Lift Challenge Game yay</h1>
+    <div id="game-container">
+        <div class="floor" id="floor-3">
+            <div class="obstacle"></div>
+        </div>
+        <div class="floor" id="floor-2"></div>
+        <div class="floor" id="floor-1"></div>
+        <div class="lift" id="lift"></div>
+    </div>
+    <div id="status">Press Up or Down to move the lift!</div>
+
+    <script>
+        const lift = document.getElementById('lift');
+        const status = document.getElementById('status');
+        let currentFloor = 1;
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowUp' && currentFloor < 3) {
+                currentFloor++;
+                moveLift();
+            } else if (event.key === 'ArrowDown' && currentFloor > 1) {
+                currentFloor--;
+                moveLift();
+            }
+        });
+
+        function moveLift() {
+            const newBottom = (currentFloor - 1) * 100;
+            lift.style.bottom = `${newBottom}px`;
+            status.textContent = `Lift is on floor ${currentFloor}`;
+            checkObstacle();
+        }
+
+        function checkObstacle() {
+            const obstacle = document.querySelector(`#floor-${currentFloor} .obstacle`);
+            if (obstacle && isColliding(lift, obstacle)) {
+                status.textContent = 'Game Over! You hit an obstacle!';
+                document.removeEventListener('keydown', moveLift);
+            }
+        }
+
+        function isColliding(lift, obstacle) {
+            const liftRect = lift.getBoundingClientRect();
+            const obstacleRect = obstacle.getBoundingClientRect();
+            return !(
+                liftRect.top > obstacleRect.bottom ||
+                liftRect.bottom < obstacleRect.top ||
+                liftRect.right < obstacleRect.left ||
+                liftRect.left > obstacleRect.right
+            );
+        }
+    </script>
+</body>
+</html>
+
