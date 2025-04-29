@@ -1,3 +1,9 @@
+const lifts = [
+    { id: 1, x: 50, y: 500, color: 'green', speed: 'fast', passengers: [] },
+    { id: 2, x: 150, y: 500, color: 'orange', speed: 'medium', passengers: [] },
+    { id: 3, x: 250, y: 500, color: 'red', speed: 'slow', passengers: [] }
+];
+
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -79,90 +85,40 @@ canvas.addEventListener('click', (event) => {
 
     if (selectedLift) {
         const player = people.find(person => person.name === 'Player');
-        player.inLift = selectedLift;
-        document.getElementById('status').textContent = `Player entered Lift ${selectedLift.id}. Use Arrow keys to move.`;
-    }
-});
-
-document.addEventListener('keydown', (event) => {
-    if (!selectedLift) {
-        document.getElementById('status').textContent = 'Please select a lift first!';
-        return;
-    }
-
-    const speed = selectedLift.speed;
-    let delay = 0;
-
-    if (speed === 'medium') delay = 500;
-    if (speed === 'slow') delay = 1000;
-
-    if (event.key === 'ArrowUp') {
-        moveLift(-100, delay);
-    } else if (event.key === 'ArrowDown') {
-        moveLift(100, delay);
-    }
-});
-
-function moveLift(deltaY, delay) {
-    setTimeout(() => {
-        const newY = selectedLift.y + deltaY;
-
-        if (newY >= 0 && newY <= 500) {
-            selectedLift.y = newY;
-            drawLifts();
-
-            const floor = 5 - Math.floor(newY / 100);
-            document.getElementById('status').textContent = `Lift ${selectedLift.id} is on floor ${floor}`;
-
-            // Check if people need to get off
-            people.forEach(person => {
-                if (person.inLift === selectedLift && person.targetFloor === floor) {
-                    person.inLift = null;
-                    document.getElementById('status').textContent += ` ${person.name} got off at floor ${floor}.`;
-                    if (person.name === 'Player') {
-                        updateScore(100); // Bonus for reaching the target floor
-                    } else {
-                        updateScore(50); // Points for helping others reach their floor
-                    }
-                }
-            });
-
-            checkGameEnd();
+        if (player.inLift === null) {
+            player.inLift = selectedLift;
+            document.getElementById('status').textContent = `Player entered Lift ${selectedLift.id}.`;
         } else {
-            document.getElementById('status').textContent = `Lift ${selectedLift.id} cannot move further in that direction.`;
+            const currentFloor = 5 - Math.floor(selectedLift.y / 100);
+            if (currentFloor === player.targetFloor) {
+                player.inLift = null;
+                document.getElementById('status').textContent = `Player exited Lift ${selectedLift.id} at floor ${currentFloor}.`;
+            } else {
+                document.getElementById('status').textContent = `Player cannot exit. Target floor is ${player.targetFloor}.`;
+            }
         }
-
-        drawPeople();
-    }, delay);
-}
-
-let timer = 0;
-let timerInterval;
-let score = 0;
-
-function startTimer() {
-    timer = 0;
-    timerInterval = setInterval(() => {
-        timer++;
-        document.getElementById('timer').textContent = `Time: ${timer}s`;
-    }, 1000);
-}
-
-function stopTimer() {
-    clearInterval(timerInterval);
-}
-
-function updateScore(points) {
-    score += points;
-    document.getElementById('score').textContent = `Score: ${score}`;
-}
-
-function checkGameEnd() {
-    const player = people.find(person => person.name === 'Player');
-    if (player && player.inLift === null && player.targetFloor === 5) {
-        stopTimer();
-        document.getElementById('status').textContent = `You reached your destination in ${timer} seconds! Your final score is ${score}.`;
     }
+});
+
+function simulateLiftMovement() {
+    lifts.forEach(lift => {
+        if (lift.passengers && lift.passengers.length > 0) {
+            const targetFloor = lift.passengers[0].targetFloor;
+            const targetY = 500 - targetFloor * 100;
+
+            if (lift.y > targetY) {
+                lift.y -= 2; // Move up
+            } else if (lift.y < targetY) {
+                lift.y += 2; // Move down
+            } else {
+                // Drop off passengers
+                lift.passengers = lift.passengers.filter(p => p.targetFloor !== targetFloor);
+            }
+        }
+    });
+    drawLifts();
+    requestAnimationFrame(simulateLiftMovement);
 }
 
-startTimer();
+lifts.forEach(lift => lift.passengers = []); // Initialize passengers array for each lift
+simulateLiftMovement();
